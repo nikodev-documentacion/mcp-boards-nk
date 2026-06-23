@@ -208,6 +208,34 @@ server.tool(
   }
 );
 
+// ── Comments ──────────────────────────────────────────────────────────────────
+
+server.tool(
+  "add_comment",
+  "Agrega un comentario a una card",
+  {
+    board_id: z.string().describe("ID del board"),
+    card_id: z.string().describe("ID de la card"),
+    content: z.string().describe("Texto del comentario"),
+  },
+  async ({ board_id, card_id, content }) => {
+    const now = Date.now();
+    const blocks = [{
+      type: "comment",
+      parentId: card_id,
+      boardId: board_id,
+      createAt: now,
+      updateAt: now,
+      fields: { content },
+    }];
+    await apiFetch(`/boards/${board_id}/blocks`, {
+      method: "POST",
+      body: JSON.stringify(blocks),
+    });
+    return { content: [{ type: "text", text: "Comentario agregado correctamente." }] };
+  }
+);
+
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 
 async function main() {
