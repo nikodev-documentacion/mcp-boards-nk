@@ -4,7 +4,8 @@
   "description": "MCP server for Mattermost Boards (Focalboard) — list teams, boards, cards, create and update tasks",
   "main": "dist/index.js",
   "bin": {
-    "mcp-boards-nk": "dist/index.js"
+    "mcp-boards-nk": "dist/index.js",
+    "mcp-boards-nk-setup": "dist/setup.js"
   },
   "scripts": {
     "build": "tsc",
@@ -38,6 +39,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@clack/prompts": "^1.6.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^4.4.3"
   },
