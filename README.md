@@ -35,7 +35,15 @@ MCP server for **Mattermost Boards (Focalboard)** — lets Claude and other MCP-
 
 ## Installation
 
-### Claude Desktop
+### Wizard (recommended)
+
+```bash
+npx mcp-boards-nk-setup
+```
+
+Supports Claude Desktop, Claude Code (global or project) and Cursor. Prompts for your Mattermost URL and token, writes the config automatically.
+
+### Manual — Claude Desktop
 
 Add to your `claude_desktop_config.json`:
 
