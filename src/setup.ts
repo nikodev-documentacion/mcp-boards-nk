@@ -35,8 +35,12 @@ function writeJsonConfig(configPath: string, url: string, token: string) {
   let config: any = {};
   if (fs.existsSync(configPath)) {
     try {
-      config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+      const raw = fs.readFileSync(configPath, "utf-8").replace(/^﻿/, "").trim();
+      config = raw ? JSON.parse(raw) : {};
     } catch {
+      const backup = configPath + ".bak";
+      fs.copyFileSync(configPath, backup);
+      p.log.warn(`No se pudo leer el config existente. Backup guardado en: ${backup}`);
       config = {};
     }
   }
@@ -45,7 +49,7 @@ function writeJsonConfig(configPath: string, url: string, token: string) {
     command: MCP_COMMAND,
     args: MCP_ARGS,
     env: {
-      MATTERMOST_URL: url,
+      MATTERMOST_URL: (url as string).replace(/\/$/, ""),
       MATTERMOST_TOKEN: token,
     },
   };
