@@ -1,0 +1,40 @@
+{
+  "name": "mcp-boards-nk",
+  "version": "1.0.0",
+  "description": "MCP server for Mattermost Boards (Focalboard) — list teams, boards, cards, create and update tasks",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-boards-nk": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["mcp", "focalboard", "mattermost", "boards", "claude", "model-context-protocol"],
+  "author": "nikolas.paneblanco",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nikolas-paneblanco/mcp-boards-nk.git"
+  },
+  "homepage": "https://github.com/nikolas-paneblanco/mcp-boards-nk#readme",
+  "bugs": {
+    "url": "https://github.com/nikolas-paneblanco/mcp-boards-nk/issues"
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
