@@ -229,11 +229,12 @@ server.tool(
     const now = Date.now();
     const blocks = [{
       type: "comment",
+      title: content,
       parentId: card_id,
       boardId: board_id,
       createAt: now,
       updateAt: now,
-      fields: { content },
+      fields: {},
     }];
     await apiFetch(`/boards/${board_id}/blocks`, {
       method: "POST",
