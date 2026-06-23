@@ -1,6 +1,6 @@
 {
   "name": "mcp-boards-nk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for Mattermost Boards (Focalboard) — list teams, boards, cards, create and update tasks",
   "main": "dist/index.js",
   "bin": {
@@ -12,7 +12,14 @@
     "start": "node dist/index.js",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["mcp", "focalboard", "mattermost", "boards", "claude", "model-context-protocol"],
+  "keywords": [
+    "mcp",
+    "focalboard",
+    "mattermost",
+    "boards",
+    "claude",
+    "model-context-protocol"
+  ],
   "author": "nikolas.paneblanco",
   "license": "MIT",
   "type": "module",
@@ -24,7 +31,9 @@
   "bugs": {
     "url": "https://github.com/nikodev-documentacion/mcp-boards-nk/issues"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=18"
   },
