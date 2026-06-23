@@ -1,6 +1,14 @@
 # mcp-boards-nk
 
-MCP server for **Mattermost Boards (Focalboard)** — lets Claude and other MCP-compatible clients list teams, boards, cards, and create, update or delete tasks via natural language.
+[![npm version](https://img.shields.io/npm/v/mcp-boards-nk.svg)](https://www.npmjs.com/package/mcp-boards-nk)
+[![npm downloads](https://img.shields.io/npm/dm/mcp-boards-nk.svg)](https://www.npmjs.com/package/mcp-boards-nk)
+[![CI](https://github.com/nikodev-documentacion/mcp-boards-nk/actions/workflows/ci.yml/badge.svg)](https://github.com/nikodev-documentacion/mcp-boards-nk/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node >=18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+
+MCP server for **Mattermost Boards (Focalboard)** — lets Claude and other MCP-compatible clients list teams, boards, and cards, create and update tasks, add comments, and more — all via natural language.
+
+> The first MCP server with full support for Mattermost Boards (Focalboard).
 
 ## Tools available
 
@@ -14,13 +22,14 @@ MCP server for **Mattermost Boards (Focalboard)** — lets Claude and other MCP-
 | `create_card` | Create a new card with title, properties and content |
 | `update_card` | Update title, properties or content of an existing card |
 | `delete_card` | Delete a card from a board |
+| `add_comment` | Add a comment to a card |
 | `list_views` | List views of a board (kanban, table, gallery…) |
 | `list_board_members` | List members of a board |
 
 ## Requirements
 
-- Mattermost instance with the **Boards (Focalboard) plugin** enabled
-- A Mattermost **Personal Access Token** with permission to access boards
+- Self-hosted Mattermost instance with the **Boards (Focalboard) plugin** enabled
+- A Mattermost **Personal Access Token**
 
 ## Installation
 
@@ -60,11 +69,11 @@ claude mcp add mattermost-boards -- env MATTERMOST_URL=https://your-mattermost-i
 
 1. Go to **Profile → Security → Personal Access Tokens → Edit**
 2. Click **Create Token**, give it a name, copy the value
-3. If the option doesn't appear, ask your Mattermost admin to enable it under **System Console → User Management → Users → Manage Roles**
+3. If the option doesn't appear, ask your Mattermost admin to enable it under **System Console → User Management → Users → Manage Roles → Allow this account to generate personal access tokens**
 
 ## How to use card properties
 
-When creating or updating cards, pass `properties` as a JSON object using the IDs defined in the board.  
+When creating or updating cards, pass `properties` as a JSON object using the IDs defined in the board.
 Use `get_board` to see all available property IDs and their option values.
 
 Example:
