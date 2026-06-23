@@ -10,6 +10,8 @@ MCP server for **Mattermost Boards (Focalboard)** — lets Claude and other MCP-
 
 > The first MCP server with full support for Mattermost Boards (Focalboard).
 
+![mcp-boards-nk demo](https://raw.githubusercontent.com/nikodev-documentacion/mcp-boards-nk/main/mcp-demo.gif)
+
 ## Tools available
 
 | Tool | Description |
