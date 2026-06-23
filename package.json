@@ -18,11 +18,11 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nikolas-paneblanco/mcp-boards-nk.git"
+    "url": "https://github.com/nikodev-documentacion/mcp-boards-nk.git"
   },
-  "homepage": "https://github.com/nikolas-paneblanco/mcp-boards-nk#readme",
+  "homepage": "https://github.com/nikodev-documentacion/mcp-boards-nk#readme",
   "bugs": {
-    "url": "https://github.com/nikolas-paneblanco/mcp-boards-nk/issues"
+    "url": "https://github.com/nikodev-documentacion/mcp-boards-nk/issues"
   },
   "files": ["dist"],
   "engines": {
