@@ -77,24 +77,31 @@ server.tool(
 
 server.tool(
   "list_cards",
-  "Lista las cards/tareas de un board",
+  "Lista las cards/tareas de un board, con filtro opcional por propiedad",
   {
     board_id: z.string().describe("ID del board"),
+    filter_property: z.string().optional().describe("ID de la propiedad por la que filtrar, ej: prop_estado"),
+    filter_value: z.string().optional().describe("Valor de la propiedad a filtrar, ej: opt_pendiente"),
     page: z.number().optional().describe("Página (default 0)"),
     per_page: z.number().optional().describe("Cards por página (default 50)"),
   },
-  async ({ board_id, page = 0, per_page = 50 }) => {
-    const cards = await apiFetch(`/boards/${board_id}/cards?page=${page}&per_page=${per_page}`);
+  async ({ board_id, filter_property, filter_value, page = 0, per_page = 50 }) => {
+    let cards = await apiFetch(`/boards/${board_id}/cards?page=${page}&per_page=${per_page}`);
     if (!cards?.length) return { content: [{ type: "text", text: "No hay cards en este board." }] };
+    if (filter_property && filter_value) {
+      cards = cards.filter((c: any) => c.properties?.[filter_property] === filter_value);
+      if (!cards.length) return { content: [{ type: "text", text: `No hay cards con ${filter_property} = ${filter_value}.` }] };
+    }
     const text = cards
       .map((c: any) => {
-        const props = Object.entries(c.fields?.properties ?? {})
+        const props = Object.entries(c.properties ?? {})
           .map(([k, v]) => `    ${k}: ${v}`)
           .join("\n");
         return `- ${c.title} (id: ${c.id})\n${props}`;
       })
       .join("\n");
-    return { content: [{ type: "text", text: `Cards:\n${text}` }] };
+    const header = filter_property ? `Cards [${filter_property}=${filter_value}]:\n` : "Cards:\n";
+    return { content: [{ type: "text", text: header + text }] };
   }
 );
 
@@ -104,8 +111,8 @@ server.tool(
   { card_id: z.string().describe("ID de la card") },
   async ({ card_id }) => {
     const card = await apiFetch(`/cards/${card_id}`);
-    const props = JSON.stringify(card.fields?.properties ?? {}, null, 2);
-    const text = `Card: ${card.title}\nID: ${card.id}\nBoard: ${card.boardId}\nContenido: ${card.fields?.content ?? ""}\nPropiedades:\n${props}`;
+    const props = JSON.stringify(card.properties ?? {}, null, 2);
+    const text = `Card: ${card.title}\nID: ${card.id}\nBoard: ${card.boardId}\nPropiedades:\n${props}`;
     return { content: [{ type: "text", text }] };
   }
 );
