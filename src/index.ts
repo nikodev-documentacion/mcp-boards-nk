@@ -150,19 +150,21 @@ server.tool(
   },
   async ({ card_id, title, properties, content }) => {
     const current = await apiFetch(`/cards/${card_id}`);
-    const updated: any = {
-      ...current,
-      title: title ?? current.title,
-      fields: {
-        ...current.fields,
-        properties: { ...current.fields?.properties, ...(properties ?? {}) },
-        content: content ?? current.fields?.content ?? "",
-      },
-    };
-    await apiFetch(`/cards/${card_id}`, {
-      method: "PATCH",
-      body: JSON.stringify(updated),
-    });
+    const updatedFields: any = {};
+    if (properties) updatedFields.properties = { ...current.properties, ...properties };
+    if (content !== undefined) updatedFields.content = content;
+    if (Object.keys(updatedFields).length > 0) {
+      await apiFetch(`/boards/${current.boardId}/blocks/${card_id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ updatedFields }),
+      });
+    }
+    if (title) {
+      await apiFetch(`/cards/${card_id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ title, properties: current.properties }),
+      });
+    }
     return { content: [{ type: "text", text: `Card ${card_id} actualizada correctamente.` }] };
   }
 );
