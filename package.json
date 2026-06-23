@@ -1,6 +1,6 @@
 {
   "name": "mcp-boards-nk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "MCP server for Mattermost Boards (Focalboard) — list teams, boards, cards, create and update tasks",
   "main": "dist/index.js",
   "bin": {
