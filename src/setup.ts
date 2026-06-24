@@ -8,14 +8,27 @@ import path from "path";
 const MCP_NAME = "mattermost-boards";
 
 function getClaudeDesktopConfigPath(): string {
-  switch (process.platform) {
-    case "win32":
-      return path.join(process.env.APPDATA ?? os.homedir(), "Claude", "claude_desktop_config.json");
-    case "darwin":
-      return path.join(os.homedir(), "Library", "Application Support", "Claude", "claude_desktop_config.json");
-    default:
-      return path.join(os.homedir(), ".config", "Claude", "claude_desktop_config.json");
+  if (process.platform === "win32") {
+    // Windows Store (UWP) version
+    const localAppData = process.env.LOCALAPPDATA ?? path.join(os.homedir(), "AppData", "Local");
+    const packagesDir = path.join(localAppData, "Packages");
+    if (fs.existsSync(packagesDir)) {
+      const entries = fs.readdirSync(packagesDir);
+      const claudePackage = entries.find((e) => e.startsWith("Claude_") || e.startsWith("AnthropicPBC.Claude_"));
+      if (claudePackage) {
+        const storePath = path.join(packagesDir, claudePackage, "LocalCache", "Roaming", "Claude", "claude_desktop_config.json");
+        if (fs.existsSync(storePath)) return storePath;
+        // si no existe aún, devolvemos la ruta igual para que el wizard la cree
+        return storePath;
+      }
+    }
+    // Instalador clásico
+    return path.join(process.env.APPDATA ?? os.homedir(), "Claude", "claude_desktop_config.json");
   }
+  if (process.platform === "darwin") {
+    return path.join(os.homedir(), "Library", "Application Support", "Claude", "claude_desktop_config.json");
+  }
+  return path.join(os.homedir(), ".config", "Claude", "claude_desktop_config.json");
 }
 
 function getCursorConfigPath(): string {
