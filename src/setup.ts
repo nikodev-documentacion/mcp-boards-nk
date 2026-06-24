@@ -58,10 +58,9 @@ function writeJsonConfig(configPath: string, url: string, token: string) {
 }
 
 function installClaudeCode(scope: string, url: string, token: string) {
-  const scopeFlag = scope === "global" ? "--global" : "--project";
   const cmd = [
     "claude mcp add",
-    scopeFlag,
+    `-s ${scope}`,
     MCP_NAME,
     `-e MATTERMOST_URL=${url}`,
     `-e MATTERMOST_TOKEN=${token}`,
