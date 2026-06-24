@@ -110,8 +110,8 @@ export async function runSetup() {
     const s = await p.select({
       message: "¿Instalación global o por proyecto?",
       options: [
-        { value: "global", label: "Global  (~/.claude/settings.json)" },
-        { value: "project", label: "Proyecto  (.claude/settings.json)" },
+        { value: "user", label: "Global / Usuario  (~/.claude/settings.json)" },
+        { value: "project", label: "Proyecto  (.mcp.json)" },
       ],
     });
     if (p.isCancel(s)) { p.cancel("Instalación cancelada."); process.exit(0); }
