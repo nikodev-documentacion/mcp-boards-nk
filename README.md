@@ -19,7 +19,7 @@ MCP server for **Mattermost Boards (Focalboard)** — lets Claude and other MCP-
 | `list_teams` | List all Mattermost teams |
 | `list_boards` | List boards in a team |
 | `get_board` | Get board details including properties and columns |
-| `list_cards` | List cards/tasks in a board (supports filtering by property) |
+| `list_cards` | List cards/tasks in a board. Optional filter: `filter_property` + `filter_value` (e.g. `prop_estado` / `opt_pendiente`) |
 | `get_card` | Get full card details |
 | `create_card` | Create a new card with title, properties and content |
 | `update_card` | Update title, properties or content of an existing card |
@@ -41,7 +41,7 @@ Run the interactive setup wizard — it configures Claude Desktop or Claude Code
 npx --prefer-online --package=mcp-boards-nk mcp-boards-nk-setup
 ```
 
-![Setup wizard](https://raw.githubusercontent.com/nikodev-documentacion/mcp-boards-nk/main/wizard-demo.png)
+![Setup wizard](https://raw.githubusercontent.com/nikodev-documentacion/mcp-boards-nk/main/mcp-install.png)
 
 The wizard will ask you:
 1. Which client to install to (Claude Desktop / Claude Code global or project)
@@ -49,6 +49,8 @@ The wizard will ask you:
 3. Your personal access token
 
 You can install to multiple clients in a single run.
+
+![MCP connected](https://raw.githubusercontent.com/nikodev-documentacion/mcp-boards-nk/main/mcp-connected.png)
 
 ## Uninstall
 
