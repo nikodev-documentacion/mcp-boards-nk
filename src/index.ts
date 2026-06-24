@@ -246,7 +246,10 @@ server.tool(
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 
-async function main() {
+if (process.argv[2] === "setup") {
+  const { runSetup } = await import("./setup.js");
+  await runSetup();
+} else {
   if (!BASE_URL || !TOKEN) {
     process.stderr.write("Error: MATTERMOST_URL y MATTERMOST_TOKEN son requeridos\n");
     process.exit(1);
@@ -255,8 +258,3 @@ async function main() {
   await server.connect(transport);
   process.stderr.write("mcp-focalboard iniciado\n");
 }
-
-main().catch((err) => {
-  process.stderr.write(`Fatal: ${err}\n`);
-  process.exit(1);
-});
