@@ -19,7 +19,7 @@ MCP server for **Mattermost Boards (Focalboard)** — lets Claude and other MCP-
 | `list_teams` | List all Mattermost teams |
 | `list_boards` | List boards in a team |
 | `get_board` | Get board details including properties and columns |
-| `list_cards` | List cards/tasks in a board |
+| `list_cards` | List cards/tasks in a board (supports filtering by property) |
 | `get_card` | Get full card details |
 | `create_card` | Create a new card with title, properties and content |
 | `update_card` | Update title, properties or content of an existing card |
@@ -35,38 +35,28 @@ MCP server for **Mattermost Boards (Focalboard)** — lets Claude and other MCP-
 
 ## Installation
 
-### Wizard (recommended)
+Run the interactive setup wizard — it configures Claude Desktop or Claude Code automatically:
 
 ```bash
 npx --prefer-online --package=mcp-boards-nk mcp-boards-nk-setup
 ```
 
-Supports Claude Desktop, Claude Code (global or project) and Cursor. Prompts for your Mattermost URL and token, writes the config automatically.
+![Setup wizard](https://raw.githubusercontent.com/nikodev-documentacion/mcp-boards-nk/main/wizard-demo.png)
 
-### Manual — Claude Desktop
+The wizard will ask you:
+1. Which client to install to (Claude Desktop / Claude Code global or project)
+2. Your Mattermost URL
+3. Your personal access token
 
-Add to your `claude_desktop_config.json`:
+You can install to multiple clients in a single run.
 
-```json
-{
-  "mcpServers": {
-    "mattermost-boards": {
-      "command": "npx",
-      "args": ["-y", "mcp-boards-nk@latest"],
-      "env": {
-        "MATTERMOST_URL": "https://your-mattermost-instance.com",
-        "MATTERMOST_TOKEN": "your-personal-access-token"
-      }
-    }
-  }
-}
-```
-
-### Claude Code (CLI)
+## Uninstall
 
 ```bash
-claude mcp add mattermost-boards -- env MATTERMOST_URL=https://your-mattermost-instance.com MATTERMOST_TOKEN=your-token npx -y mcp-boards-nk@latest
+npx --prefer-online --package=mcp-boards-nk mcp-boards-nk-setup --uninstall
 ```
+
+Select which clients to remove the MCP from and the wizard handles the rest.
 
 ## Environment variables
 
@@ -79,7 +69,9 @@ claude mcp add mattermost-boards -- env MATTERMOST_URL=https://your-mattermost-i
 
 1. Go to **Profile → Security → Personal Access Tokens → Edit**
 2. Click **Create Token**, give it a name, copy the value
-3. If the option doesn't appear, ask your Mattermost admin to enable it under **System Console → User Management → Users → Manage Roles → Allow this account to generate personal access tokens**
+
+If the option doesn't appear, ask your Mattermost admin to enable it:
+**System Console → User Management → Users → Manage Roles → Allow this account to generate personal access tokens**
 
 ## How to use card properties
 
