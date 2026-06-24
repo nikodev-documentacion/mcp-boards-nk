@@ -7,7 +7,7 @@ import path from "path";
 
 const MCP_NAME = "mattermost-boards";
 
-function getConfigPath(): string {
+function getClaudeDesktopConfigPath(): string {
   switch (process.platform) {
     case "win32":
       return path.join(process.env.APPDATA ?? os.homedir(), "Claude", "claude_desktop_config.json");
@@ -16,6 +16,10 @@ function getConfigPath(): string {
     default:
       return path.join(os.homedir(), ".config", "Claude", "claude_desktop_config.json");
   }
+}
+
+function getCursorConfigPath(): string {
+  return path.join(os.homedir(), ".cursor", "mcp.json");
 }
 
 function isClaudeRunning(): boolean {
@@ -47,15 +51,63 @@ function writeConfig(configPath: string, config: any): void {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
 }
 
+function installViaJsonConfig(configPath: string, url: string, token: string, appName: string) {
+  let config: any;
+  try {
+    config = readConfig(configPath);
+  } catch (err: any) {
+    throw new Error(err.message);
+  }
+
+  if (config?.mcpServers?.[MCP_NAME]) {
+    return { alreadyExists: true, config };
+  }
+
+  config.mcpServers = config.mcpServers ?? {};
+  config.mcpServers[MCP_NAME] = {
+    command: "npx",
+    args: ["-y", "mcp-boards-nk@latest"],
+    env: {
+      MATTERMOST_URL: url,
+      MATTERMOST_TOKEN: token,
+    },
+  };
+
+  writeConfig(configPath, config);
+  return { alreadyExists: false, config };
+}
+
 export async function runSetup() {
   console.log();
   p.intro("  MCP Boards — Setup wizard  ");
 
-  const configPath = getConfigPath();
+  // 1. Seleccionar cliente
+  const client = await p.select({
+    message: "¿En qué cliente querés instalar el MCP?",
+    options: [
+      { value: "claude-desktop", label: "Claude Desktop" },
+      { value: "claude-code", label: "Claude Code (CLI)" },
+      { value: "cursor", label: "Cursor" },
+    ],
+  });
+  if (p.isCancel(client)) { p.cancel("Instalación cancelada."); process.exit(0); }
 
-  // 1. Detectar si Claude Desktop está corriendo
-  if (isClaudeRunning()) {
-    p.log.warn("Claude Desktop está corriendo. Cerralo antes de continuar para que tome los cambios.");
+  let scope = "global";
+  if (client === "claude-code") {
+    const s = await p.select({
+      message: "¿Instalación global o por proyecto?",
+      options: [
+        { value: "global", label: "Global  (~/.claude/settings.json)" },
+        { value: "project", label: "Proyecto  (.claude/settings.json)" },
+      ],
+    });
+    if (p.isCancel(s)) { p.cancel("Instalación cancelada."); process.exit(0); }
+    scope = s as string;
+  }
+
+  // 2. Si es Claude Desktop: verificar que esté cerrado
+  if (client === "claude-desktop" && isClaudeRunning()) {
+    p.log.warn("Claude Desktop está corriendo. Cerralo antes de continuar.");
     const confirmed = await p.confirm({
       message: "¿Ya cerraste Claude Desktop?",
       initialValue: false,
@@ -66,24 +118,19 @@ export async function runSetup() {
     }
   }
 
-  // 2. Leer config existente
-  let config: any;
-  try {
-    config = readConfig(configPath);
-  } catch (err: any) {
-    p.log.error(err.message);
-    process.exit(1);
-  }
-
-  // 3. Verificar si ya existe la entrada
-  if (config?.mcpServers?.[MCP_NAME]) {
-    const overwrite = await p.confirm({
-      message: `Ya existe una entrada "${MCP_NAME}". ¿Sobreescribirla?`,
-      initialValue: false,
-    });
-    if (p.isCancel(overwrite) || !overwrite) {
-      p.cancel("Instalación cancelada. La configuración existente no fue modificada.");
-      process.exit(0);
+  // 3. Verificar entrada existente para Desktop/Cursor
+  if (client === "claude-desktop" || client === "cursor") {
+    const configPath = client === "claude-desktop" ? getClaudeDesktopConfigPath() : getCursorConfigPath();
+    const existing = readConfig(configPath);
+    if (existing?.mcpServers?.[MCP_NAME]) {
+      const overwrite = await p.confirm({
+        message: `Ya existe una entrada "${MCP_NAME}". ¿Sobreescribirla?`,
+        initialValue: false,
+      });
+      if (p.isCancel(overwrite) || !overwrite) {
+        p.cancel("Instalación cancelada. La configuración existente no fue modificada.");
+        process.exit(0);
+      }
     }
   }
 
@@ -107,27 +154,58 @@ export async function runSetup() {
   });
   if (p.isCancel(token)) { p.cancel("Instalación cancelada."); process.exit(0); }
 
-  // 6. Merge y escribir
-  config.mcpServers = config.mcpServers ?? {};
-  config.mcpServers[MCP_NAME] = {
-    command: "npx",
-    args: ["-y", "mcp-boards-nk@latest"],
-    env: {
-      MATTERMOST_URL: (url as string).replace(/\/$/, ""),
-      MATTERMOST_TOKEN: token as string,
-    },
-  };
+  const cleanUrl = (url as string).replace(/\/$/, "");
+  const cleanToken = token as string;
+
+  const spinner = p.spinner();
+  spinner.start("Instalando...");
 
   try {
-    writeConfig(configPath, config);
+    if (client === "claude-desktop") {
+      const configPath = getClaudeDesktopConfigPath();
+      let config = readConfig(configPath);
+      config.mcpServers = config.mcpServers ?? {};
+      config.mcpServers[MCP_NAME] = {
+        command: "npx",
+        args: ["-y", "mcp-boards-nk@latest"],
+        env: { MATTERMOST_URL: cleanUrl, MATTERMOST_TOKEN: cleanToken },
+      };
+      writeConfig(configPath, config);
+      spinner.stop(`Configuración escrita en:\n  ${configPath}`);
+      p.outro("Abrí Claude Desktop nuevamente para activar el MCP.");
+
+    } else if (client === "claude-code") {
+      const cmd = [
+        "claude mcp add",
+        `-s ${scope}`,
+        MCP_NAME,
+        `-e MATTERMOST_URL=${cleanUrl}`,
+        `-e MATTERMOST_TOKEN=${cleanToken}`,
+        "--",
+        "npx", "-y", "mcp-boards-nk@latest",
+      ].join(" ");
+      execSync(cmd, { stdio: "inherit" });
+      spinner.stop("Instalado en Claude Code.");
+      p.outro("El MCP está activo. Podés verificarlo con: claude mcp list");
+
+    } else if (client === "cursor") {
+      const configPath = getCursorConfigPath();
+      let config = readConfig(configPath);
+      config.mcpServers = config.mcpServers ?? {};
+      config.mcpServers[MCP_NAME] = {
+        command: "npx",
+        args: ["-y", "mcp-boards-nk@latest"],
+        env: { MATTERMOST_URL: cleanUrl, MATTERMOST_TOKEN: cleanToken },
+      };
+      writeConfig(configPath, config);
+      spinner.stop(`Configuración escrita en:\n  ${configPath}`);
+      p.outro("Reiniciá Cursor para activar el MCP.");
+    }
   } catch (err: any) {
-    p.log.error(`Error de permisos al escribir en: ${configPath}`);
-    p.log.error(err.message);
+    spinner.stop("Error durante la instalación.");
+    p.log.error(err.message ?? String(err));
     process.exit(1);
   }
-
-  p.log.success(`Configuración escrita correctamente en:\n  ${configPath}`);
-  p.outro("Abrí Claude Desktop nuevamente para activar el MCP.");
 }
 
 runSetup();
